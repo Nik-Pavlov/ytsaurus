@@ -11,6 +11,7 @@ SRCS(
     disruptors.cpp
     main.cpp
     peer.cpp
+    scenario.cpp
     peer_service.proto
 )
 
