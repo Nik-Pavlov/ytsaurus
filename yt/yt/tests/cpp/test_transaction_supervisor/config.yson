@@ -1,0 +1,20 @@
+{
+    NUM_MASTERS = 1;
+    NUM_NODES = 3;
+    NUM_SCHEDULERS = 0;
+    NUM_CONTROLLER_AGENTS = 0;
+    DELTA_MASTER_CONFIG = {
+        object_service = {
+            timeout_backoff_lead_time = 100;
+        };
+    };
+    DELTA_NODE_CONFIG = {
+        tablet_node = {
+            transaction_supervisor = {
+                testing_finish_delay = 5000;
+            };
+        };
+    };
+    DRIVER_BACKEND = native;
+    NUM_RPC_PROXIES = 0;
+}

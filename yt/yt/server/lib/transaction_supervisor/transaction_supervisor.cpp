@@ -40,6 +40,7 @@
 
 #include <yt/yt/client/api/connection.h>
 
+#include <yt/yt/core/concurrency/delayed_executor.h>
 #include <yt/yt/core/concurrency/periodic_executor.h>
 #include <yt/yt/core/concurrency/scheduler.h>
 
@@ -3008,6 +3009,17 @@ private:
             case ECommitState::Finishing: {
                 NTransactionSupervisor::NProto::TReqCoordinatorFinishDistributedTransaction request;
                 ToProto(request.mutable_transaction_id(), commit->GetTransactionId());
+
+                if (auto delay = Config_->TestingFinishDelay; delay != TDuration::Zero()) {
+                    TDelayedExecutor::Submit(
+                        BIND([this, this_ = MakeStrong(this), request] {
+                            auto mutation = CreateMutation(HydraManager_, request);
+                            YT_UNUSED_FUTURE(mutation->CommitAndLog(Logger));
+                        }),
+                        delay,
+                        EpochAutomatonInvoker_);
+                    break;
+                }
 
                 auto mutation = CreateMutation(HydraManager_, request);
                 mutation->SetCurrentTraceContext();

@@ -15,6 +15,9 @@ struct TTransactionSupervisorConfig
     TDuration RpcTimeout;
     TDuration ParticipantBackoffTime;
 
+    //! Testing only. Delays posting the Finish mutation of a distributed commit.
+    TDuration TestingFinishDelay;
+
     REGISTER_YSON_STRUCT(TTransactionSupervisorConfig);
 
     static void Register(TRegistrar registrar);
