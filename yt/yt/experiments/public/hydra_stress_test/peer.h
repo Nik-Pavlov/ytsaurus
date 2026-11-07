@@ -10,10 +10,13 @@
 #include <yt/yt/server/lib/hydra/hydra_service.h>
 
 #include <yt/yt/client/hydra/public.h>
+#include <yt/yt/client/hydra/version.h>
 
 namespace NYT::NHydraStressTest {
 
 ////////////////////////////////////////////////////////////////////////////////
+
+DECLARE_REFCOUNTED_STRUCT(TChangelogRecordCounts)
 
 class TPeer
     : public TRefCounted
@@ -35,6 +38,13 @@ public:
     bool IsRecovery() const;
     bool IsVoting() const;
 
+    //! Returns |(id, recordCount)| of the latest nonempty changelog of this peer, as written through
+    //! its changelog store (zero version if there is none).
+    NHydra::TVersion GetLastNonemptyLoggedVersion() const;
+
+    //! Removes the peer's snapshots and changelogs. The peer must be finalized.
+    void ClearPersistence();
+
     NHydra::EPeerState GetAutomatonState() const;
     NRpc::IChannelPtr GetChannel() const;
     int GetPeerId() const;
@@ -55,7 +65,9 @@ private:
     const NElection::TElectionManagerThunkPtr ElectionManagerThunk_;
     const NRpc::IServerPtr RpcServer_;
     const NRpc::IChannelPtr Channel_;
+    const TChangelogRecordCountsPtr ChangelogRecordCounts_;
 
+    NHydra::IChangelogStoreFactoryPtr ChangelogStoreFactory_;
     TAutomatonPartPtr AutomatonPart_;
     NHydra::IHydraManagerPtr HydraManager_;
     NRpc::IServicePtr PeerService_;

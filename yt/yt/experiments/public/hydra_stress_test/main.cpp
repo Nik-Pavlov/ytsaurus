@@ -7,6 +7,7 @@
 #include "helpers.h"
 #include "peer.h"
 #include "public.h"
+#include "scenario.h"
 
 #include <library/cpp/getopt/last_getopt.h>
 
@@ -168,7 +169,20 @@ int main(int argc, const char** argv)
 
         std::string Config;
         opts.AddLongOption("config", "Config").StoreResult(&Config);
+        TString Scenario;
+        opts.AddLongOption("scenario", "Run a deterministic scenario instead of the stress test (follower-rejoin)")
+            .StoreResult(&Scenario);
+        TString WorkDir = "hydra_scenario";
+        opts.AddLongOption("work-dir", "Scenario working directory (wiped on start)").StoreResult(&WorkDir);
         NLastGetopt::TOptsParseResult results(&opts, argc, argv);
+
+        if (Scenario == "follower-rejoin") {
+            return NYT::NHydraStressTest::RunFollowerRejoinScenario(WorkDir);
+        }
+        if (!Scenario.empty()) {
+            Cerr << "Unknown scenario: " << Scenario << Endl;
+            return 2;
+        }
 
         NYT::NHydraStressTest::RunHydraTest(Config);
         return 0;

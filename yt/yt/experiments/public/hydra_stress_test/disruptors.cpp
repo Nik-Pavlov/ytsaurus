@@ -176,8 +176,7 @@ void TPersistenceDestroyer::ClearPeer(int peerIndex)
         YT_TLOG_INFO("Removing snapshots and changelogs")
             .With("PeerId", peerId);
 
-        NFS::RemoveRecursive(Config_->Snapshots->Path + "/" + ToString(peerId));
-        NFS::RemoveRecursive(Config_->Changelogs->Path + "/" + ToString(peerId));
+        peer->ClearPersistence();
     }
 
     YT_TLOG_INFO("Started resurrecting peer")
